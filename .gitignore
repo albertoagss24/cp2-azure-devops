@@ -1,0 +1,19 @@
+# --- Terraform ---
+# El estado contiene datos sensibles (contraseña del ACR): NUNCA a git.
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+# Variables que puedan llevar secretos (permitimos los .example)
+*.tfvars
+!*.tfvars.example
+# --- Credenciales / secretos ---
+*.key
+*.pem
+.htpasswd
+kubeconfig
+*.kubeconfig
+# --- Sistema ---
+.DS_Store
+Thumbs.db
