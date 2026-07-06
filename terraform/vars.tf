@@ -39,3 +39,23 @@ variable "acr_sku" {
     type        = string
     default     = "Basic"
 }
+
+# Máquina virtual (VM)
+
+variable "vm_tamano" {
+    description = "Tamaño (SKU) de la VM. B2ats_v2 = 2 vCPU burstable, free tier de Student, arquitectura amd64."
+    type        = string
+    default     = "Standard_B2ats_v2"
+}
+
+variable "vm_usuario" {
+  description = "Usuario administrador de la VM (acceso por SSH)."
+  type        = string
+  default     = "azureuser"
+}
+
+variable "ssh_clave_publica_path" {
+  description = "Ruta a la clave SSH publica que se instalara en la VM."
+  type        = string
+  default     = "~/.ssh/cp2_key.pub"
+}

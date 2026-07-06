@@ -20,3 +20,13 @@ output "resource_group_name" {
     description = "Nombre del grupo de recursos creado."
     value       = azurerm_resource_group.rg.name
 }
+
+output "vm_ip_publica" {
+    description = "IP publica de la VM (para SSH y para acceder a la web por HTTPS)."
+    value       = azurerm_public_ip.pip.ip_address
+}
+
+output "vm_usuario" {
+    description = "Usuario administrador de la VM."
+    value       = azurerm_linux_virtual_machine.vm.admin_username
+}
