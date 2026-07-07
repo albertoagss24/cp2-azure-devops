@@ -1,0 +1,49 @@
+---
+- name: Desplegar la app web (Nginx) en Podman sobre la VM
+  hosts: podman_vm
+  become: true
+
+  vars:
+    imagen: "{{ acr_login_server }}/web-podman-nginx:casopractico2"
+    nombre_contenedor: cp2-web
+
+  tasks:
+    - name: Instalar Podman
+      ansible.builtin.apt:
+        name: podman
+        state: present
+        update_cache: true
+
+    - name: Iniciar sesion en el registro privado (ACR)
+      containers.podman.podman_login:
+        registry: "{{ acr_login_server }}"
+        username: "{{ acr_username }}"
+        password: "{{ acr_password }}"
+
+    - name: Descargar la imagen desde el ACR
+      containers.podman.podman_image:
+        name: "{{ imagen }}"
+        pull: true
+        force: true
+
+    - name: Ejecutar el contenedor y generar su unidad systemd
+      containers.podman.podman_container:
+        name: "{{ nombre_contenedor }}"
+        image: "{{ imagen }}"
+        state: started
+        ports:
+          - "443:443"
+
+    - name: Generar la unidad systemd del contenedor
+      containers.podman.podman_generate_systemd:
+        name: "{{ nombre_contenedor }}"
+        dest: /etc/systemd/system
+        restart_policy: always
+        new: true
+
+    - name: Habilitar el servicio para que arranque al reiniciar
+      ansible.builtin.systemd_service:
+        name: "container-{{ nombre_contenedor }}.service"
+        enabled: true
+        daemon_reload: true
+        state: started
