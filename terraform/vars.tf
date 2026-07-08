@@ -59,3 +59,23 @@ variable "ssh_clave_publica_path" {
   type        = string
   default     = "~/.ssh/cp2_key.pub"
 }
+
+# Clúster AKS (Azure Kubernetes Service)
+
+variable "aks_dns_prefix" {
+    description = "Prefijo DNS del cluster AKS."
+    type        = string
+    default     = "cp2unir-aks"
+}
+
+variable "aks_node_count" {
+    description = "Número de nodos worker. El enunciado exige 1."
+    type        = number
+    default     = 1
+}
+
+variable "aks_node_size" {
+    description = "Tamaño de los nodos AKS. D2s_v3 = 2 vCPU, (VM 2 + AKS 2 = 4 <= 6 de la cuota Student)"
+    type        = string
+    default     = "Standard_D2s_v3"
+}

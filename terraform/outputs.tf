@@ -30,3 +30,8 @@ output "vm_usuario" {
     description = "Usuario administrador de la VM."
     value       = azurerm_linux_virtual_machine.vm.admin_username
 }
+
+output "aks_nombre" {
+    description = "Nombre del cluster AKS."
+    value       = azurerm_kubernetes_cluster.aks.name
+}
