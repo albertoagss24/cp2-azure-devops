@@ -1,0 +1,37 @@
+---
+- name: Desplegar WordPress + MySQL con persistencia en AKS
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    db_password: "unir2026" # La contraseña vive como variable en el playbook. En producción se protegería con Ansible Vault o Azure Key Vault.
+
+  tasks:
+    # Crea el Secret 'mysql-pass' con la contraseña, definido en línea.
+    - name: Crear Secret para la contraseña de MySQL
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: mysql-pass
+            namespace: default
+          type: Opaque
+          stringData: # Deja que pongas el valor en texto plano y Kubernetes lo codigica en base64.
+            password: "{{ db_password }}"
+
+    # Recorre mediante un bucle los 6 manifiestos y aplica cada uno (equivale a 'kubectl apply -f').
+    - name: Aplicar los manifiestos de MySQL y WordPress
+      kubernetes.core.k8s:
+        state: present # Se asegura de que cada manifiesto existe.
+        namespace: default
+        src: "{{ item }}"
+      loop:
+        - k8s/mysql-pvc.yaml
+        - k8s/mysql-deployment.yaml
+        - k8s/mysql-service.yaml
+        - k8s/wordpress-pvc.yaml
+        - k8s/wordpress-deployment.yaml
+        - k8s/wordpress-service.yaml

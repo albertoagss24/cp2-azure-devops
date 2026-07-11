@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+spec:
+  type: LoadBalancer # Azure crea automáticamente un balanceador con IP pública y DNS para acceder a WordPress desde Internet.
+  selector:
+    app: wordpress
+  ports:
+    - port: 80
+      targetPort: 80
