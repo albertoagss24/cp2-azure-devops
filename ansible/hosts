@@ -1,6 +1,13 @@
-[podman_vm]
-vm-web ansible_host=20.91.213.88
+# Inventario de Ansible: define los nodos gestionados y como conectarse a ellos.
 
+# Grupo de hosts llamado 'podman_vm' (así lo referencian los playbooks en 'hosts:')
+[podman_vm]
+# Un host al que llamamos 'vm-web'. 'ansible_host' es su dirección real: la IP pública de la máquina virtual en Azure.
+vm-web ansible_host=20.91.213.88 
+
+# Variables que se aplican a todos los hosts del grupo 'podman_vm'.
 [podman_vm:vars]
-ansible_user=azureuser
-ansible_ssh_private_key_file=~/.ssh/cp2_key
+# Usuario con el que Ansible inicia sesión por SSH en la VM
+ansible_user=azureuser 
+# Clave SSH privada que se usa para autenticarse (la pareja de la pública que Terraform instaló en la VM al crearla)
+ansible_ssh_private_key_file=~/.ssh/cp2_key 

@@ -1,49 +1,53 @@
 ---
+# Playbook: despliegue de la aplicación web (Nginx) en Podman sobre la VM.
+# Instala Podman, descarga la imagen del ACR y la ejecuta como servicio de systemd, persistente a reinicios. Usa sólo módulos nativos (sin shell).
+# Las credenciales del ACR se pasan como variables extra desde deploy.sh
+
 - name: Desplegar la app web (Nginx) en Podman sobre la VM
-  hosts: podman_vm
-  become: true
+  hosts: podman_vm # Grupo de hosts definido en el inventario 'hosts'
+  become: true # Ejecuta las tareas como root (sudo): apt, systemd...
 
   vars:
-    imagen: "{{ acr_login_server }}/web-podman-nginx:casopractico2"
-    nombre_contenedor: cp2-web
+    imagen: "{{ acr_login_server }}/web-podman-nginx:casopractico2" # Ruta completa de la imagen en el ACR (registro/repositorio:tag)
+    nombre_contenedor: cp2-web # Nombre del contenedor y base del nombre del servicio systemd
 
   tasks:
-    - name: Instalar Podman
+    - name: Instalar Podman # Asegura que Podman está instalado en la VM (motor de contenedores)
       ansible.builtin.apt:
         name: podman
-        state: present
-        update_cache: true
+        state: present # Se instala si no está
+        update_cache: true # Actualiza la lista de paquetes antes (apt update)
 
-    - name: Iniciar sesion en el registro privado (ACR)
+    - name: Iniciar sesion en el registro privado (ACR) # Autentica en el registro privado para poder descargar la imagen
       containers.podman.podman_login:
         registry: "{{ acr_login_server }}"
         username: "{{ acr_username }}"
         password: "{{ acr_password }}"
 
-    - name: Descargar la imagen desde el ACR
+    - name: Descargar la imagen desde el ACR # Descarga la imagen desde el ACR
       containers.podman.podman_image:
         name: "{{ imagen }}"
         pull: true
-        force: true
+        force: true # Fuerza la re-descarga aunque el tag ya exista en local
 
-    - name: Ejecutar el contenedor y generar su unidad systemd
+    - name: Ejecutar el contenedor y generar su unidad systemd # Crea el contenedor
       containers.podman.podman_container:
         name: "{{ nombre_contenedor }}"
         image: "{{ imagen }}"
         state: started
         ports:
-          - "443:443"
+          - "443:443" # Publica el 443 de la VM hacia el 443 del contenedor
 
-    - name: Generar la unidad systemd del contenedor
+    - name: Generar la unidad systemd del contenedor # Genera la unidad de systemd que gestionará el contenedor como servicio
       containers.podman.podman_generate_systemd:
         name: "{{ nombre_contenedor }}"
-        dest: /etc/systemd/system
-        restart_policy: always
-        new: true
+        dest: /etc/systemd/system # Donde se escribe el fichero .service
+        restart_policy: always # Reinicia el contenedor automáticamente si cae
+        new: true # Recrea el contenedor al arrancar (evita un bug de Podman 3.4)
 
-    - name: Habilitar el servicio para que arranque al reiniciar
+    - name: Habilitar el servicio para que arranque al reiniciar # Habilita el servicio (arranca al reiniciar la VM) y lo arranca ahora.
       ansible.builtin.systemd_service:
         name: "container-{{ nombre_contenedor }}.service"
-        enabled: true
-        daemon_reload: true
-        state: started
+        enabled: true # Arranca automáticamente en el boot (persistencia)
+        daemon_reload: true # Recarga systemd para que detecte la unidad nueva
+        state: started # Lo arranca en este momento
