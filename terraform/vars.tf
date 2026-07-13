@@ -1,18 +1,21 @@
+# vars.tf - Variables de entrada del despliegue.
+# Centralizan los valores configurables (nombres, región, tamaños...) para no repetirlos por el código y poder cambiarlos en un único sitio.
+
 variable "prefijo" {
     description = "Prefijo común para nombrar los recursos (rg, vm, aks...). Sólo minúsculas y guiones."
     type        = string
-    default     = "cp2"
+    default     = "cp2" # Genera nombres como cp2-rg, cp2-vm, cp2-aks
 }
 
 variable "localizacion" {
     description = "Región de Azure donde se desplegarán los recursos. Usamos swedencentral en la cuenta student"
     type        = string
-    default     = "swedencentral"
+    default     = "swedencentral" # West Europe está bloqueada en Azure for Students
 }
 
 variable "etiquetas" {
     description = "Etiquetas aplicadas a todos los recursos para identificarlos y filtrarlos."
-    type        = map(string)
+    type        = map(string) # Diccionario clave-valor
     default     = {
         environment = "casopractico2"
         proyecto    = "cp2unir"
@@ -37,10 +40,10 @@ variable "acr_nombre" {
 variable "acr_sku" {
     description = "SKU del Azure Container Registry (ACR)."
     type        = string
-    default     = "Basic"
+    default     = "Basic" # El nivel más económico, suficiente para el caso práctico
 }
 
-# Máquina virtual (VM)
+# --- Máquina virtual (VM) ---
 
 variable "vm_tamano" {
     description = "Tamaño (SKU) de la VM. B2ats_v2 = 2 vCPU burstable, free tier de Student, arquitectura amd64."
@@ -57,10 +60,10 @@ variable "vm_usuario" {
 variable "ssh_clave_publica_path" {
   description = "Ruta a la clave SSH publica que se instalara en la VM."
   type        = string
-  default     = "~/.ssh/cp2_key.pub"
+  default     = "~/.ssh/cp2_key.pub" # Su pareja privada se queda en el nodo de control
 }
 
-# Clúster AKS (Azure Kubernetes Service)
+# --- Clúster AKS (Azure Kubernetes Service) ---
 
 variable "aks_dns_prefix" {
     description = "Prefijo DNS del cluster AKS."
