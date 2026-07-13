@@ -1,36 +1,38 @@
+# Deployment de MySQL: gestiona el pod de la base de datos.
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
 spec:
-  replicas: 1
+  replicas: 1 # Una única réplica (base de datos)
   selector:
     matchLabels:
-      app: mysql
+      app: mysql # Gestiona los pods etiquetados como 'app=mysql'
   strategy:
-    type: Recreate # Al actualizar, primero para el pod antiguo y luego crea el nuevo pod
+    type: Recreate # Al actualizar, primero para el pod antiguo y luego crea el nuevo pod (el disco RWO no admite dos pods a la vez)
   template:
     metadata:
       labels:
-        app: mysql
+        app: mysql # Etiqueta que identifica al pod
     spec:
       containers:
         - name: mysql
-          image: mysql:8.0
+          image: mysql:8.0 # Imagen oficial de MySQL
           env:
-            - name: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD # Contraseña de root
               valueFrom:
                 secretKeyRef: # La contraseña se lee de un secret llamado 'mysql-pass'
                   name: mysql-pass
                   key: password
-            - name: MYSQL_DATABASE
+            - name: MYSQL_DATABASE # Base de datos que se crea al iniciar
               value: wordpress
           ports:
-            - containerPort: 3306
-          volumeMounts: # Monta el volumen persistente en /var/lib/mysql, que es donde MySQL guarda los datos.
+            - containerPort: 3306 # Puerto de MySQL
+          volumeMounts:
             - name: mysql-storage
-              mountPath: /var/lib/mysql
+              mountPath: /var/lib/mysql # Ruta donde MySQL guarda los datos
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:
-            claimName: mysql-pvc
+            claimName: mysql-pvc # Monta el volumen persistente definido antes

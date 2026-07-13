@@ -1,3 +1,5 @@
+# Deployment de WordPress: gestiona el pod de la aplicación web.
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,7 +10,7 @@ spec:
     matchLabels:
       app: wordpress
   strategy:
-    type: Recreate # Al actualizar, primero para el pod antiguo y luego crea el nuevo pod
+    type: Recreate # Evita que dos pods monten el mismo disco RWO
   template:
     metadata:
       labels:
@@ -16,24 +18,24 @@ spec:
     spec:
       containers:
         - name: wordpress
-          image: wordpress:6-apache
+          image: wordpress:6-apache # Imagen oficial de WordPress con Apache
           env:
-            - name: WORDPRESS_DB_HOST # Wordpress se conecta a la base de datos usando el nombre del Service 'mysql' (descubrimiento por DNS interno).
+            - name: WORDPRESS_DB_HOST # Host de la BBDD = nombre del Service de MySQL
               value: mysql:3306
             - name: WORDPRESS_DB_USER
               value: root
-            - name: WORDPRESS_DB_PASSWORD
+            - name: WORDPRESS_DB_PASSWORD # Misma contraseña, leída del Secret
               valueFrom:
                 secretKeyRef: # Usa la misma contraseña del Secret que MySQL.
                   name: mysql-pass
                   key: password
-            - name: WORDPRESS_DB_NAME
+            - name: WORDPRESS_DB_NAME # Base de datos que usará WordPress
               value: wordpress
           ports:
-            - containerPort: 80
-          volumeMounts: # Monta el volumen persistente en /var/www/html, que es donde WordPress guarda los datos.
+            - containerPort: 80 # WordPress escucha en el puerto 80
+          volumeMounts: 
             - name: wordpress-storage
-              mountPath: /var/www/html
+              mountPath: /var/www/html # Ruta de los ficheros de WordPress
       volumes:
         - name: wordpress-storage
           persistentVolumeClaim:

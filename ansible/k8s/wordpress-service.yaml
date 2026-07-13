@@ -1,11 +1,14 @@
+# Service de tipo LoadBalancer para WordPress.
+# Azure provisiona automáticamente un balanceador con IP pública, exponiendo la aplicación a Internet.
+
 apiVersion: v1
 kind: Service
 metadata:
   name: wordpress
 spec:
-  type: LoadBalancer # Azure crea automáticamente un balanceador con IP pública y DNS para acceder a WordPress desde Internet.
+  type: LoadBalancer
   selector:
-    app: wordpress
+    app: wordpress # Enruta a los pods de WordPress
   ports:
-    - port: 80
-      targetPort: 80
+    - port: 80 # Puerto público
+      targetPort: 80 # Puerto del contenedor

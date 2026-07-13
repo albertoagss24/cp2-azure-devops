@@ -1,4 +1,5 @@
-# Service interno (tipo ClusterIP por defecto). Da un nombre estable, 'mysql', para que WordPress encuentre la base de datos dentro del cluster (no se expone a Internet).
+# Service interno (tipo ClusterIP por defecto). 
+# Da un nombre estable, 'mysql', para que WordPress encuentre la base de datos dentro del cluster (no se expone a Internet).
 
 apiVersion: v1
 kind: Service
@@ -6,6 +7,6 @@ metadata:
   name: mysql
 spec:
   selector:
-    app: mysql
+    app: mysql # Enruta el tráfico a los pods etiquetados app=mysql
   ports:
-    - port: 3306
+    - port: 3306 # Puerto por el que se accede a MySQL

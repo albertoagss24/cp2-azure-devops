@@ -1,13 +1,14 @@
-# Volumen persistente donde MySQL guardará la base de datos.
+# PersistentVolumeClaim (PVC) para la base de datos MySQL.
+# Solicita a Kubernetes un volumen persistente donde MySQL guardará sus datos, de modo que sobrevivan aunque el pod se destruya y se recree.
 
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
+  name: mysql-pvc # Nombre del PVC (lo referencia el Deployment)
 spec:
   accessModes:
-    - ReadWriteOnce
-  storageClassName: managed-csi
+    - ReadWriteOnce # Lo monta un único nodo a la vez (típico de BBDD)
+  storageClassName: managed-csi # Clase de almacenamiento de AKS (crea un disco de Azure)
   resources:
     requests:
-      storage: 5Gi
+      storage: 5Gi # Tamaño del disco solicitado

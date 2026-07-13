@@ -1,11 +1,13 @@
+# PersistentVolumeClaim (PVC) para los ficheros de WordPress (temas, plugins, subidas...). Persiste aunque el pod se recree.
+
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: wordpress-pvc
 spec:
   accessModes:
-    - ReadWriteOnce
-  storageClassName: managed-csi
+    - ReadWriteOnce # Montaje por un único nodo
+  storageClassName: managed-csi # Disco de Azure vía AKS
   resources:
     requests:
       storage: 5Gi
